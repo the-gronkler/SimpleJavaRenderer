@@ -10,6 +10,11 @@ public class Mesh {
     // distance from the origin along each axis
     private double dx, dy, dz;
 
+    //Available Object Types
+    public static final String
+            TETRAHEDRON = "Tetrahedron",
+            CUBE = "Cube";
+
 
     public Mesh(Triangle... polygons){
         this.polygons = Arrays.asList(polygons);
@@ -208,6 +213,12 @@ public class Mesh {
         polygons.forEach(t -> t.inflate( radius ));
 
         denormalizeOrigin();
+        return this;
+    }
+
+    public Mesh formSphere(double radius, int subdivisions){
+        subdivide(subdivisions);
+        inflate(radius);
         return this;
     }
 

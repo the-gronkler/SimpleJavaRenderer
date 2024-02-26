@@ -6,13 +6,17 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import static swing_test.Mesh.CUBE;
+import static swing_test.Mesh.TETRAHEDRON;
 
-public class mainWindow extends JFrame {
+public class RenderPanel extends JPanel {
+//    public ArrayList<Mesh> objects;
+    private HashMap<String, Mesh> objects;
 
-    public mainWindow(){
-        Container pane = this.getContentPane();
-        pane.setLayout(new BorderLayout());
+    public RenderPanel(){
+        objects = new HashMap<>();
 
         Mesh tetrahedron = Mesh.tetrahedron(100);
         tetrahedron.translate(-350, 0, 0);
@@ -24,28 +28,14 @@ public class mainWindow extends JFrame {
                 .subdivide(2)
                 .inflate( 120);
 
-        Mesh ballTetrahedron = Mesh.tetrahedron(1)
-                .subdivide(3)
-                .inflate( 130);
-
-        ArrayList<Mesh> objects = new ArrayList<>();
-        objects.add(tetrahedron);
-        objects.add(cube);
-//        objects.add(ballCube);
-        objects.add(ballTetrahedron);
+        Mesh ballTetrahedron = Mesh.tetrahedron(1).formSphere(130, 3);
 
 
+        objects.put("Tet1", tetrahedron);
+        objects.put("Cube1", cube);
+        objects.put("ball1", ballCube);
+        objects.put("ball2", ballTetrahedron);
 
-        JPanel renderPanel = new JPanel() {
-            public void paintComponent(Graphics g) {
-                // draw background
-                g.setColor(Color.darkGray);
-                g.fillRect(0, 0, getWidth(), getHeight());
-
-                renderMesh( (Graphics2D) g, objects );
-
-            }
-        };
         MouseAdapter rotationAdapter = new MouseAdapter() {
             int lastX, lastY;
 
@@ -60,27 +50,22 @@ public class mainWindow extends JFrame {
                 int dx = e.getX() - lastX;
                 int dy = e.getY() - lastY;
 
-                objects.forEach( mesh -> mesh.rotate(dy, dx));
+                objects.values().forEach( mesh -> mesh.rotate(dy, dx));
 
                 lastX = e.getX();
                 lastY = e.getY();
 
-                renderPanel.repaint();
+                repaint();
             }
         };
-
-
-        renderPanel.addMouseMotionListener( rotationAdapter );
-
-        pane.add(renderPanel, BorderLayout.CENTER);
-
-        setSize(1200, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setVisible(true);
-
+        addMouseMotionListener( rotationAdapter );
     }
 
-    private void renderMesh(Graphics2D g, ArrayList<Mesh> objects){
+    @Override
+    public void paintComponent(Graphics g) {
+        // draw background
+        g.setColor(Color.darkGray);
+        g.fillRect(0, 0, getWidth(), getHeight());
 
         //define bounds of usable space and set origin in center of window
         int     maxX = this.getWidth() / 2,
@@ -90,7 +75,7 @@ public class mainWindow extends JFrame {
         g.translate(maxX, maxY);
 
         ArrayList<Triangle> polygons = new ArrayList<>();
-        for( Mesh m : objects )
+        for( Mesh m : objects.values() )
             polygons.addAll( m.getPolygons() );
         if(polygons.isEmpty())
             return;
@@ -112,7 +97,7 @@ public class mainWindow extends JFrame {
 
             for (int y = pMinY; y <= pMaxY; y++)
                 for (int x = pMinX; x <= pMaxX; x++){
-                    
+
                     int normalX = x - minX, normalY = y - minY;
                     double z = p.depthAt(x,y);
                     if( z > zBuffer[ normalX ][ normalY ] ){
@@ -120,13 +105,13 @@ public class mainWindow extends JFrame {
                                 getShade( p.color, p.getNormalCos()  ).getRGB() );
                         zBuffer[ normalX ][ normalY ] = z;
                     }
-                    
+
                 }
         }
 
         g.drawImage(canvas, minX, minY, null);
-    }
 
+    }
     private double[][] createZBuffer(BufferedImage image, double drawDistance) {
         double[][] zBuffer = new double[image.getWidth()][image.getHeight()];
         for (int x = 0; x < image.getWidth(); x++)
@@ -134,15 +119,35 @@ public class mainWindow extends JFrame {
                 zBuffer[x][y] = drawDistance;
         return zBuffer;
     }
-
-
-
     public static Color getShade(Color color, double shade) {
         int red   = (int) ( color.getRed()   * shade ),
-            green = (int) ( color.getGreen() * shade ),
-            blue  = (int) ( color.getBlue()  * shade );
+                green = (int) ( color.getGreen() * shade ),
+                blue  = (int) ( color.getBlue()  * shade );
         return new Color( red, green, blue );
     }
 
 
+    public String[] getObjectNames(){
+        return objects.keySet().toArray(new String[0]);
+    }
+    public void addObject(String type, String name, boolean isSphere, double radius, int subdivisions, double size){
+        if (size < 1 || name.isEmpty())
+            return;
+
+        Mesh mesh = switch (type){
+            case TETRAHEDRON -> Mesh.tetrahedron(size);
+            case CUBE -> Mesh.cube(size);
+            default -> throw new IllegalArgumentException("Invalid object type");
+        };
+
+        if( isSphere && radius > 0 )
+            mesh.subdivide(subdivisions).inflate(radius);
+
+        objects.put(name, mesh);
+        repaint();
+    }
+    public void removeObject(String name){
+        objects.remove(name);
+        repaint();
+    }
 }
