@@ -1,23 +1,25 @@
 package swing_test;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Mesh {
-    public List<Triangle> mesh;
+    public List<Triangle> polygons;
     // distance from the origin along each axis
     private double dx, dy, dz;
 
 
     public Mesh(Triangle... polygons){
-        this.mesh = Arrays.asList(polygons);
+        this.polygons = Arrays.asList(polygons);
         dx = 0;
         dy = 0;
         dz = 0;
     }
 
     public static Mesh tetrahedron(double size){
+        // size = 1/2 edge lengths of a cube the vertices of which the tetrahedron shares
         return new Mesh(
                 Triangle.build(
                         size, size, size,
@@ -135,9 +137,9 @@ public class Mesh {
         double sin = Math.sin(radians);
 
         return new Matrix3D(
-                1, 0, 0,
-                0, cos, -sin,
-                0, sin, cos
+                1.0, 0.0, 0.0,
+                0.0, cos, -sin,
+                0.0, sin, cos
         );
     }
     public static Matrix3D createRotationMatrixY(double radians) {
@@ -145,9 +147,9 @@ public class Mesh {
         double sin = Math.sin(radians);
 
         return new Matrix3D(
-                cos, 0, sin,
-                0, 1, 0,
-                -sin, 0, cos
+                cos, 0.0, sin,
+                0.0, 1.0, 0.0,
+                -sin, 0.0, cos
         );
     }
 
@@ -158,27 +160,64 @@ public class Mesh {
         Matrix3D rotationMatrixX = createRotationMatrixX(-radiansX);
         Matrix3D rotationMatrixY = createRotationMatrixY(radiansY);
 
-        mesh.forEach( t -> t.translate(-dx, -dy, -dz) );
+        normaliseOrigin();
 
-        for (Triangle t : mesh){
+        for (Triangle t : polygons){
             t.transform(rotationMatrixX);
             t.transform(rotationMatrixY);
         }
 
-        mesh.forEach( t -> t.translate(dx, dy, dz) );
+        denormalizeOrigin();
     }
     public void translate(double dx, double dy, double dz){
         this.dx += dx;
         this.dy += dy;
         this.dz += dz;
-        mesh.forEach( t -> t.translate(dx, dy, dz) );
+        polygons.forEach(t -> t.translate(dx, dy, dz) );
     }
 
     public void drawWireframe(Graphics2D g){
-        mesh.forEach( t -> t.drawWireframe(g) );
+        polygons.forEach(t -> t.drawWireframe(g) );
     }
 
     public List<Triangle> getPolygons() {
-        return mesh;
+        return polygons;
     }
+
+    public Mesh subdivide(){
+        List<Triangle> newPolygons = new ArrayList<>(polygons.size() * 4 );
+        for( Triangle p : polygons )
+            newPolygons.addAll(Arrays.asList( p.subdivide() ));
+        this . polygons = newPolygons;
+        return this;
+    }
+
+    public Mesh subdivide(int iterations){
+        if (iterations < 1)
+            throw new IllegalArgumentException();
+
+        for(int i = 0; i < iterations; i++)
+            this.subdivide();
+
+        return this;
+    }
+
+    public Mesh inflate(double radius){
+        normaliseOrigin();
+
+        polygons.forEach(t -> t.inflate( radius ));
+
+        denormalizeOrigin();
+        return this;
+    }
+
+    private void normaliseOrigin(){
+        polygons.forEach(t -> t.translate(-dx, -dy, -dz) );
+    }
+
+    private void denormalizeOrigin(){
+        polygons.forEach(t -> t.translate(dx, dy, dz) );
+    }
+
+
 }

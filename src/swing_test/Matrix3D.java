@@ -1,14 +1,18 @@
 package swing_test;
 
 // 3x3 matrix of type double
-public record Matrix3D(double... values) {
-    public Matrix3D {
+public class Matrix3D {
+    public double[] values;
+    public Matrix3D(double... values) {
         if (values.length != 9)
             throw new IllegalArgumentException("expected array length of 9");
+        this.values = values;
     }
+
+
     public Matrix3D multiply(Matrix3D other) {
         double[] res = new double[9],
-                m2 = other.values();
+                m2 = other.values;
 
         // row and col are indices in result matrix
         for (int row = 0; row < 3; row++)

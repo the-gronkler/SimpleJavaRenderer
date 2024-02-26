@@ -15,22 +15,34 @@ public class mainWindow extends JFrame {
         pane.setLayout(new BorderLayout());
 
         Mesh tetrahedron = Mesh.tetrahedron(100);
+        tetrahedron.translate(-350, 0, 0);
+
         Mesh cube = Mesh.cube(200);
+        cube.translate(350, 0, 0);
+
+        Mesh ballCube = Mesh.cube(1)
+                .subdivide(2)
+                .inflate( 120);
+
+        Mesh ballTetrahedron = Mesh.tetrahedron(1)
+                .subdivide(3)
+                .inflate( 130);
 
         ArrayList<Mesh> objects = new ArrayList<>();
         objects.add(tetrahedron);
         objects.add(cube);
+//        objects.add(ballCube);
+        objects.add(ballTetrahedron);
 
-        tetrahedron.translate(-350, 0, 0);
-        cube.translate(350, 0, 0);
+
 
         JPanel renderPanel = new JPanel() {
             public void paintComponent(Graphics g) {
                 // draw background
-                g.setColor(Color.BLACK);
+                g.setColor(Color.darkGray);
                 g.fillRect(0, 0, getWidth(), getHeight());
 
-                renderMesh((Graphics2D) g, objects);
+                renderMesh( (Graphics2D) g, objects );
 
             }
         };
@@ -69,12 +81,12 @@ public class mainWindow extends JFrame {
     }
 
     private void renderMesh(Graphics2D g, ArrayList<Mesh> objects){
-        int     maxX = getWidth() / 2,
-                maxY = getHeight() / 2,
+
+        //define bounds of usable space and set origin in center of window
+        int     maxX = this.getWidth() / 2,
+                maxY = this.getHeight() / 2,
                 minX = - maxX,
                 minY = - maxY;
-
-        //set origin in center of window
         g.translate(maxX, maxY);
 
         ArrayList<Triangle> polygons = new ArrayList<>();
@@ -83,26 +95,32 @@ public class mainWindow extends JFrame {
         if(polygons.isEmpty())
             return;
 
-        BufferedImage canvas = new BufferedImage(maxX - minX + 1, maxY - minY + 1, BufferedImage.TYPE_INT_ARGB);
-        double[][] zBuffer = createZBuffer(canvas, Double.NEGATIVE_INFINITY);
+        BufferedImage canvas = new BufferedImage(
+                maxX - minX + 1,
+                maxY - minY + 1,
+                BufferedImage.TYPE_INT_ARGB
+        );
+        double[][] zBuffer = createZBuffer( canvas, Double.NEGATIVE_INFINITY );
 
-        for(Triangle t : polygons){
-            // make sure we don't try to draw outside of window
-            int pMinY = t.getMinY(), pMaxY = t.getMaxY(),
-                pMinX = t.getMinX(), pMaxX = t.getMaxX();
-            if ( pMinY < minY )     pMinY = minY;
-            if ( pMaxY > maxY )     pMaxY = maxY;
-            if ( pMinX < minX )     pMinX = minX;
-            if ( pMaxX > maxX )     pMaxX = maxX;
+        for(Triangle p : polygons){
+            // define bounds for drawing the polygon and
+            // make sure we don't try to draw outside the window
+            int     pMinY = Math.max( p.getMinY(), minY ),
+                    pMinX = Math.max( p.getMinX(), minX ),
+                    pMaxY = Math.min( p.getMaxY(), maxY ),
+                    pMaxX = Math.min( p.getMaxX(), maxX );
 
             for (int y = pMinY; y <= pMaxY; y++)
                 for (int x = pMinX; x <= pMaxX; x++){
+                    
                     int normalX = x - minX, normalY = y - minY;
-                    double z = t.DepthAt(x,y);
-                    if( z > zBuffer[normalX][normalY] ){
-                        canvas.setRGB(normalX, normalY, t.color.getRGB());
-                        zBuffer[normalX][normalY] = z;
+                    double z = p.depthAt(x,y);
+                    if( z > zBuffer[ normalX ][ normalY ] ){
+                        canvas.setRGB( normalX, normalY,
+                                getShade( p.color, p.getNormalCos()  ).getRGB() );
+                        zBuffer[ normalX ][ normalY ] = z;
                     }
+                    
                 }
         }
 
@@ -116,6 +134,8 @@ public class mainWindow extends JFrame {
                 zBuffer[x][y] = drawDistance;
         return zBuffer;
     }
+
+
 
     public static Color getShade(Color color, double shade) {
         int red   = (int) ( color.getRed()   * shade ),

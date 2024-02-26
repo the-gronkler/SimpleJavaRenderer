@@ -10,7 +10,7 @@ public class Vertex {
     }
 
     public void transform(Matrix3D transformationMatrix){
-        double[] m = transformationMatrix.values();
+        double[] m = transformationMatrix.values;
         double y1 = x * m[1] + y * m[4] + z * m[7],
                 z1 = x * m[2] + y * m[5] + z * m[8];
 
@@ -57,5 +57,36 @@ public class Vertex {
     public double getVectorLength(){
         return Math.sqrt( x*x + y*y + z*z );
     }
+
+    public static Vertex midpoint(Vertex v1, Vertex v2){
+        return new Vertex(
+                ( v1.x + v2.x ) / 2.0,
+                ( v1.y + v2.y ) / 2.0,
+                ( v1.z + v2.z ) / 2.0
+        );
+    }
+
+    public void inflate(double radius) {
+        double l  = getVectorLength() / radius;
+        x /= l;
+        y /= l;
+        z /= l;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Vertex vertex)) return false;
+
+        if (Double.compare(vertex.x, x) != 0) return false;
+        if (Double.compare(vertex.y, y) != 0) return false;
+        return Double.compare(vertex.z, z) == 0;
+    }
+
+    public Vertex clone(){
+        return new Vertex(x, y, z);
+    }
+
+
 
 }

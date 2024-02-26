@@ -1,7 +1,9 @@
 package swing_test;
 
+//import java.awt.*;
 import java.awt.*;
 import java.awt.geom.Path2D;
+import java.text.Format;
 
 public class Triangle {
     public Vertex[] vertices;
@@ -50,40 +52,67 @@ public class Triangle {
         g.draw(path);
     }
 
-    public double DepthAt(double x, double y) {
+    public double depthAt(double x, double y) {
         // Calculate edge vectors
-        Vertex edgeAB = vertices[0].getVectorTo( vertices[1] );
-        Vertex edgeBC = vertices[1].getVectorTo( vertices[2] );
-        Vertex edgeCA = vertices[2].getVectorTo( vertices[0] );
+        Vertex edgeAB = vertices[0] .getVectorTo( vertices[1] );
+        Vertex edgeBC = vertices[1] .getVectorTo( vertices[2] );
+        Vertex edgeCA = vertices[2] .getVectorTo( vertices[0] );
 
         // Calculate vectors from each vertex to the test point
-        Vertex AP = vertices[0].getVectorTo(x, y);
-        Vertex BP = vertices[1].getVectorTo(x, y);
-        Vertex CP = vertices[2].getVectorTo(x, y);
+        Vertex AP = vertices[0] .getVectorTo( x, y );
+        Vertex BP = vertices[1] .getVectorTo( x, y );
+        Vertex CP = vertices[2] .getVectorTo( x, y );
 
         // Calculate cross products for triangle orientation
-        double test1 = edgeAB.crossProduct( AP ).z;
-        double test2 = edgeBC.crossProduct( BP ).z;
-        double test3 = edgeCA.crossProduct( CP) .z;
+        double test1 = edgeAB .crossProduct( AP ) .z;
+        double test2 = edgeBC .crossProduct( BP ) .z;
+        double test3 = edgeCA .crossProduct( CP)  .z;
 
         boolean containsPoint =
                 ( test1 >= 0 && test2 >= 0 && test3 >= 0 ) ||
                 ( test1 <= 0 && test2 <= 0 && test3 <= 0 );
 
-        if (!containsPoint)
+        if ( !containsPoint )
             return Double.NaN;
 
         // Calculate normal vector of the plane
-        Vertex normal = edgeAB.crossProduct(edgeCA).normalise();
+        Vertex normal = edgeAB .crossProduct( edgeCA ) .normalise();
+
 
         // Calculate distance from the origin along the normal vector
         double d =  - ( normal.x * vertices[0].x +
                         normal.y * vertices[0].y +
                         normal.z * vertices[0].z );
 
-        // return z coordinate of the point on the plane
+        // return z coordinate of the given point on the polygon's plane
         return ( - normal.x * x - normal.y * y - d ) / normal.z;
     }
+
+    public double getNormalCos(){
+        return Math.abs(
+                vertices[0].getVectorTo( vertices[1] )
+                        .crossProduct( vertices[1].getVectorTo(vertices[2]) )
+                        .normalise()
+                        .z
+        );
+
+    }
+
+    public Triangle[] subdivide(){
+        Vertex mAB = Vertex.midpoint( vertices[0], vertices[1] );
+        Vertex mBC = Vertex.midpoint( vertices[1], vertices[2] );
+        Vertex mAC = Vertex.midpoint( vertices[2], vertices[0] );
+
+        return new Triangle[]{
+                new Triangle( this.color, vertices[0], mAB .clone(), mAC .clone() ),
+                new Triangle( this.color, vertices[1], mAB .clone(), mBC .clone() ),
+                new Triangle( this.color, vertices[2], mAC .clone(), mBC .clone()),
+                new Triangle( this.color, mAB, mBC, mAC )
+        };
+    }
+
+
+
 
     public int getMinX() {
         return (int) Math.floor(Math.min(vertices[0].x, Math.min(vertices[1].x, vertices[2].x)));
@@ -101,7 +130,8 @@ public class Triangle {
         return (int) Math.ceil(Math.max(vertices[0].y, Math.max(vertices[1].y, vertices[2].y)));
     }
 
-    public Vertex[] getVertices() {
-        return  vertices;
+    public void inflate(double radius) {
+        for( Vertex v : vertices )
+            v.inflate(radius);
     }
 }
