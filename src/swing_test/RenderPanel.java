@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,12 +12,28 @@ import java.util.HashMap;
 import static swing_test.Mesh.CUBE;
 import static swing_test.Mesh.TETRAHEDRON;
 
+
+
 public class RenderPanel extends JPanel {
 //    public ArrayList<Mesh> objects;
-    private HashMap<String, Mesh> objects;
+    private final HashMap<String, Mesh> objects;
+
+
+
+    public static final Vertex
+            lightDirection = new Vertex(10,-10,20);
+
+    public static final Color
+            backgroundColor = getShade( Color.darkGray, 0.5);
+
+    public static final double
+            minShade = (backgroundColor.getRed() + backgroundColor.getBlue() + backgroundColor.getGreen()) / 800.0 ;
+
 
     public RenderPanel(){
         objects = new HashMap<>();
+
+        System.out.println(minShade);
 
         Mesh tetrahedron = Mesh.tetrahedron(100);
         tetrahedron.translate(-350, 0, 0);
@@ -31,9 +48,9 @@ public class RenderPanel extends JPanel {
         Mesh ballTetrahedron = Mesh.tetrahedron(1).formSphere(130, 3);
 
 
-        objects.put("Tet1", tetrahedron);
-        objects.put("Cube1", cube);
-        objects.put("ball1", ballCube);
+//        objects.put("Tet1", tetrahedron);
+//        objects.put("Cube1", cube);
+//        objects.put("ball1", ballCube);
         objects.put("ball2", ballTetrahedron);
 
         MouseAdapter rotationAdapter = new MouseAdapter() {
@@ -58,13 +75,14 @@ public class RenderPanel extends JPanel {
                 repaint();
             }
         };
+
         addMouseMotionListener( rotationAdapter );
     }
 
     @Override
     public void paintComponent(Graphics g) {
         // draw background
-        g.setColor(Color.darkGray);
+        g.setColor(backgroundColor);
         g.fillRect(0, 0, getWidth(), getHeight());
 
         //define bounds of usable space and set origin in center of window
@@ -74,12 +92,6 @@ public class RenderPanel extends JPanel {
                 minY = - maxY;
         g.translate(maxX, maxY);
 
-        ArrayList<Triangle> polygons = new ArrayList<>();
-        for( Mesh m : objects.values() )
-            polygons.addAll( m.getPolygons() );
-        if(polygons.isEmpty())
-            return;
-
         BufferedImage canvas = new BufferedImage(
                 maxX - minX + 1,
                 maxY - minY + 1,
@@ -87,27 +99,32 @@ public class RenderPanel extends JPanel {
         );
         double[][] zBuffer = createZBuffer( canvas, Double.NEGATIVE_INFINITY );
 
-        for(Triangle p : polygons){
-            // define bounds for drawing the polygon and
-            // make sure we don't try to draw outside the window
-            int     pMinY = Math.max( p.getMinY(), minY ),
-                    pMinX = Math.max( p.getMinX(), minX ),
-                    pMaxY = Math.min( p.getMaxY(), maxY ),
-                    pMaxX = Math.min( p.getMaxX(), maxX );
 
-            for (int y = pMinY; y <= pMaxY; y++)
-                for (int x = pMinX; x <= pMaxX; x++){
+        for( Mesh m : objects.values() )
+            for( Triangle p : m.getPolygons() ){
+                // define bounds for drawing the polygon and
+                // make sure we don't try to draw outside the window
+                int     pMinY = Math.max( p.getMinY(), minY ),
+                        pMinX = Math.max( p.getMinX(), minX ),
+                        pMaxY = Math.min( p.getMaxY(), maxY ),
+                        pMaxX = Math.min( p.getMaxX(), maxX );
 
-                    int normalX = x - minX, normalY = y - minY;
-                    double z = p.depthAt(x,y);
-                    if( z > zBuffer[ normalX ][ normalY ] ){
-                        canvas.setRGB( normalX, normalY,
-                                getShade( p.color, p.getNormalCos()  ).getRGB() );
-                        zBuffer[ normalX ][ normalY ] = z;
+                for (int y = pMinY; y <= pMaxY; y++)
+                    for (int x = pMinX; x <= pMaxX; x++){
+
+                        int normalX = x - minX, normalY = y - minY;
+                        double z = p.depthAt(x,y);
+                        if( z > zBuffer[ normalX ][ normalY ] ){
+                            canvas.setRGB( normalX, normalY,
+                                    getShade( p.color, p.getNormalCos(lightDirection) ).getRGB() );
+                            zBuffer[ normalX ][ normalY ] = z;
+                        }
+
                     }
+            }
 
-                }
-        }
+
+
 
         g.drawImage(canvas, minX, minY, null);
 
@@ -120,7 +137,12 @@ public class RenderPanel extends JPanel {
         return zBuffer;
     }
     public static Color getShade(Color color, double shade) {
-        int red   = (int) ( color.getRed()   * shade ),
+//        double minShade = 0;
+        if (shade < minShade){
+            shade = minShade;
+        }
+
+        int     red   = (int) ( color.getRed()   * shade ),
                 green = (int) ( color.getGreen() * shade ),
                 blue  = (int) ( color.getBlue()  * shade );
         return new Color( red, green, blue );
@@ -150,4 +172,5 @@ public class RenderPanel extends JPanel {
         objects.remove(name);
         repaint();
     }
+
 }

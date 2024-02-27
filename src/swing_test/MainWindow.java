@@ -75,7 +75,7 @@ public class MainWindow extends JFrame {
 
 
 
-        pane.add(controlPanel, BorderLayout.NORTH);
+//        pane.add(controlPanel, BorderLayout.NORTH);
 
         setSize(1200, 600 + controlPanel.getHeight());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

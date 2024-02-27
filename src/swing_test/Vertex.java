@@ -66,6 +66,12 @@ public class Vertex {
         );
     }
 
+    public double dotProduct( Vertex other ){
+        return  x * other.x +
+                y * other.y +
+                z * other.z;
+    }
+
     public void inflate(double radius) {
         double l  = getVectorLength() / radius;
         x /= l;

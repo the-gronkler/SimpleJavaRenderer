@@ -27,8 +27,8 @@ public class Mesh {
         // size = 1/2 edge lengths of a cube the vertices of which the tetrahedron shares
         return new Mesh(
                 Triangle.build(
-                        size, size, size,
                         -size, -size, size,
+                        size, size, size,
                         -size, size, -size,
                         Color.ORANGE
                 ),
@@ -39,8 +39,8 @@ public class Mesh {
                         Color.RED
                 ),
                 Triangle.build(
-                        -size, size, -size,
                         size, -size, -size,
+                        -size, size, -size,
                         size, size, size,
                         Color.GREEN
                 ),
@@ -59,11 +59,11 @@ public class Mesh {
                 Triangle.build(
                         -size, -size, size,
                         size, -size, size,
-                        size, size, size,
+                        -size, size, size,
                         Color.RED
                 ),
                 Triangle.build(
-                        -size, -size, size,
+                        size, -size, size,
                         size, size, size,
                         -size, size, size,
                         Color.RED
@@ -72,24 +72,24 @@ public class Mesh {
                 Triangle.build(
                         size, -size, -size,
                         -size, -size, -size,
-                        -size, size, -size,
+                        size, size, -size,
                         Color.GREEN
                 ),
                 Triangle.build(
-                        size, -size, -size,
                         -size, size, -size,
                         size, size, -size,
+                        -size, -size, -size,
                         Color.GREEN
                 ),
                 // Left face
                 Triangle.build(
                         -size, -size, -size,
                         -size, -size, size,
-                        -size, size, size,
+                        -size, size, -size,
                         Color.BLUE
                 ),
                 Triangle.build(
-                        -size, -size, -size,
+                        -size, -size, size,
                         -size, size, size,
                         -size, size, -size,
                         Color.BLUE
@@ -98,24 +98,24 @@ public class Mesh {
                 Triangle.build(
                         size, -size, size,
                         size, -size, -size,
-                        size, size, -size,
+                        size, size, size,
                         Color.YELLOW
                 ),
                 Triangle.build(
-                        size, -size, size,
-                        size, size, -size,
                         size, size, size,
+                        size, -size, -size,
+                        size, size, -size,
                         Color.YELLOW
                 ),
                 // Top face
                 Triangle.build(
                         -size, size, size,
                         size, size, size,
-                        size, size, -size,
+                        -size, size, -size,
                         Color.CYAN
                 ),
                 Triangle.build(
-                        -size, size, size,
+                        size, size, size,
                         size, size, -size,
                         -size, size, -size,
                         Color.CYAN
@@ -123,18 +123,20 @@ public class Mesh {
                 // Bottom face
                 Triangle.build(
                         -size, -size, size,
-                        size, -size, -size,
+                        -size, -size, -size,
                         size, -size, size,
                         Color.MAGENTA
                 ),
                 Triangle.build(
-                        -size, -size, size,
+                        size, -size, size,
                         -size, -size, -size,
                         size, -size, -size,
                         Color.MAGENTA
                 )
         );
     }
+
+
 
 
     public static Matrix3D createRotationMatrixX(double radians) {
@@ -162,17 +164,17 @@ public class Mesh {
         double radiansX = Math.toRadians(rotationX);
         double radiansY = Math.toRadians(rotationY);
 
-        Matrix3D rotationMatrixX = createRotationMatrixX(-radiansX);
-        Matrix3D rotationMatrixY = createRotationMatrixY(radiansY);
+        Matrix3D rotationMatrixX = createRotationMatrixX( -radiansX );
+        Matrix3D rotationMatrixY = createRotationMatrixY(  radiansY );
 
-        normaliseOrigin();
+        moveToOrigin();
 
-        for (Triangle t : polygons){
-            t.transform(rotationMatrixX);
-            t.transform(rotationMatrixY);
+        for( Triangle t : polygons ){
+            t.transform( rotationMatrixX );
+            t.transform( rotationMatrixY );
         }
 
-        denormalizeOrigin();
+        moveBackToRealPosition();
     }
     public void translate(double dx, double dy, double dz){
         this.dx += dx;
@@ -208,11 +210,11 @@ public class Mesh {
     }
 
     public Mesh inflate(double radius){
-        normaliseOrigin();
+        moveToOrigin();
 
         polygons.forEach(t -> t.inflate( radius ));
 
-        denormalizeOrigin();
+        moveBackToRealPosition();
         return this;
     }
 
@@ -222,13 +224,11 @@ public class Mesh {
         return this;
     }
 
-    private void normaliseOrigin(){
+    private void moveToOrigin(){
         polygons.forEach(t -> t.translate(-dx, -dy, -dz) );
     }
 
-    private void denormalizeOrigin(){
+    private void moveBackToRealPosition(){
         polygons.forEach(t -> t.translate(dx, dy, dz) );
     }
-
-
 }

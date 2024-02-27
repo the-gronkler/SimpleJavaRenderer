@@ -88,15 +88,23 @@ public class Triangle {
         return ( - normal.x * x - normal.y * y - d ) / normal.z;
     }
 
-    public double getNormalCos(){
-        return Math.abs(
-                vertices[0].getVectorTo( vertices[1] )
-                        .crossProduct( vertices[1].getVectorTo(vertices[2]) )
-                        .normalise()
-                        .z
-        );
+    /**
+     * @return cos of the angle between the plane normal vector and the reference vector
+     */
+    public double getNormalCos(Vertex reference){
+        Vertex planeNormal = vertices[0].getVectorTo( vertices[1] )
+                .crossProduct( vertices[1].getVectorTo(vertices[2]) )
+                .normalise();
 
+        Vertex other = reference.normalise();
+
+        double cos = planeNormal.dotProduct(other);
+
+//        return Math.abs( cos );
+        return cos;
     }
+
+
 
     public Triangle[] subdivide(){
         Vertex mAB = Vertex.midpoint( vertices[0], vertices[1] );
@@ -105,14 +113,11 @@ public class Triangle {
 
         return new Triangle[]{
                 new Triangle( this.color, vertices[0], mAB .clone(), mAC .clone() ),
-                new Triangle( this.color, vertices[1], mAB .clone(), mBC .clone() ),
-                new Triangle( this.color, vertices[2], mAC .clone(), mBC .clone()),
+                new Triangle( this.color, vertices[1], mBC .clone(), mAB .clone() ),
+                new Triangle( this.color, vertices[2], mAC .clone(), mBC .clone() ),
                 new Triangle( this.color, mAB, mBC, mAC )
         };
     }
-
-
-
 
     public int getMinX() {
         return (int) Math.floor(Math.min(vertices[0].x, Math.min(vertices[1].x, vertices[2].x)));
