@@ -1,9 +1,7 @@
 package swing_test;
 
-//import java.awt.*;
 import java.awt.*;
 import java.awt.geom.Path2D;
-import java.text.Format;
 
 public class Triangle {
     public Vertex[] vertices;
@@ -98,10 +96,7 @@ public class Triangle {
 
         Vertex other = reference.normalise();
 
-        double cos = planeNormal.dotProduct(other);
-
-//        return Math.abs( cos );
-        return cos;
+        return planeNormal.dotProduct(other);
     }
 
 
@@ -111,7 +106,7 @@ public class Triangle {
         Vertex mBC = Vertex.midpoint( vertices[1], vertices[2] );
         Vertex mAC = Vertex.midpoint( vertices[2], vertices[0] );
 
-        return new Triangle[]{
+        return new Triangle[] {
                 new Triangle( this.color, vertices[0], mAB .clone(), mAC .clone() ),
                 new Triangle( this.color, vertices[1], mBC .clone(), mAB .clone() ),
                 new Triangle( this.color, vertices[2], mAC .clone(), mBC .clone() ),

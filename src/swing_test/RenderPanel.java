@@ -4,9 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import static swing_test.Mesh.CUBE;
@@ -15,19 +13,18 @@ import static swing_test.Mesh.TETRAHEDRON;
 
 
 public class RenderPanel extends JPanel {
-//    public ArrayList<Mesh> objects;
     private final HashMap<String, Mesh> objects;
-
-
-
     public static final Vertex
             lightDirection = new Vertex(10,-10,20);
 
     public static final Color
             backgroundColor = getShade( Color.darkGray, 0.5);
 
-    public static final double
-            minShade = (backgroundColor.getRed() + backgroundColor.getBlue() + backgroundColor.getGreen()) / 800.0 ;
+    public static final double minShade = (
+            backgroundColor.getRed() +
+            backgroundColor.getBlue() +
+            backgroundColor.getGreen()
+    ) / 800.0 ;
 
 
     public RenderPanel(){
@@ -45,13 +42,14 @@ public class RenderPanel extends JPanel {
                 .subdivide(2)
                 .inflate( 120);
 
-        Mesh ballTetrahedron = Mesh.tetrahedron(1).formSphere(130, 3);
+        Mesh ballTetrahedron = Mesh.tetrahedron(1)
+                .formSphere(130, 3);
 
 
-//        objects.put("Tet1", tetrahedron);
+//        objects.put("Tetrahedron1", tetrahedron);
 //        objects.put("Cube1", cube);
-//        objects.put("ball1", ballCube);
-        objects.put("ball2", ballTetrahedron);
+//        objects.put("ballCube1", ballCube);
+        objects.put("ballTetrahedron1", ballTetrahedron);
 
         MouseAdapter rotationAdapter = new MouseAdapter() {
             int lastX, lastY;
@@ -122,8 +120,6 @@ public class RenderPanel extends JPanel {
 
                     }
             }
-
-
 
 
         g.drawImage(canvas, minX, minY, null);
