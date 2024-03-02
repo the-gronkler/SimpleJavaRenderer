@@ -5,52 +5,27 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 
 import static swing_test.Mesh.CUBE;
 import static swing_test.Mesh.TETRAHEDRON;
 
-
-
 public class RenderPanel extends JPanel {
-    private final HashMap<String, Mesh> objects;
     public static final Vertex
             lightDirection = new Vertex(10,-10,20);
 
     public static final Color
-            backgroundColor = getShade( Color.darkGray, 0.5);
+            backgroundColor = new Color(32, 32, 32);
 
-    public static final double minShade = (
-            backgroundColor.getRed() +
-            backgroundColor.getBlue() +
-            backgroundColor.getGreen()
-    ) / 800.0 ;
+    public static final double minShade = getBrightness(backgroundColor);
 
+
+
+    public Mesh object;
+    private double rotationX, rotationY;
 
     public RenderPanel(){
-        objects = new HashMap<>();
-
-        System.out.println(minShade);
-
-        Mesh tetrahedron = Mesh.tetrahedron(100);
-        tetrahedron.translate(-350, 0, 0);
-
-        Mesh cube = Mesh.cube(200);
-        cube.translate(350, 0, 0);
-
-        Mesh ballCube = Mesh.cube(1)
-                .subdivide(2)
-                .inflate( 120);
-
-        Mesh ballTetrahedron = Mesh.tetrahedron(1)
-                .formSphere(130, 3);
-
-
-//        objects.put("Tetrahedron1", tetrahedron);
-//        objects.put("Cube1", cube);
-//        objects.put("ballCube1", ballCube);
-        objects.put("ballTetrahedron1", ballTetrahedron);
-
+        rotationX = 0;
+        rotationY = 0;
         MouseAdapter rotationAdapter = new MouseAdapter() {
             int lastX, lastY;
 
@@ -65,7 +40,10 @@ public class RenderPanel extends JPanel {
                 int dx = e.getX() - lastX;
                 int dy = e.getY() - lastY;
 
-                objects.values().forEach( mesh -> mesh.rotate(dy, dx));
+                rotationX += dx;
+                rotationY += dy;
+
+                object.rotate(dy, dx);
 
                 lastX = e.getX();
                 lastY = e.getY();
@@ -73,8 +51,7 @@ public class RenderPanel extends JPanel {
                 repaint();
             }
         };
-
-        addMouseMotionListener( rotationAdapter );
+        addMouseMotionListener(rotationAdapter);
     }
 
     @Override
@@ -82,6 +59,8 @@ public class RenderPanel extends JPanel {
         // draw background
         g.setColor(backgroundColor);
         g.fillRect(0, 0, getWidth(), getHeight());
+        if( object == null )
+            return;
 
         //define bounds of usable space and set origin in center of window
         int     maxX = this.getWidth() / 2,
@@ -97,32 +76,34 @@ public class RenderPanel extends JPanel {
         );
         double[][] zBuffer = createZBuffer( canvas, Double.NEGATIVE_INFINITY );
 
+        for( Triangle p : object.getPolygons() ){
+            // define bounds for drawing the polygon and
+            // make sure we don't try to draw outside the window
+            int     pMinY = Math.max( p.getMinY(), minY ),
+                    pMinX = Math.max( p.getMinX(), minX ),
+                    pMaxY = Math.min( p.getMaxY(), maxY ),
+                    pMaxX = Math.min( p.getMaxX(), maxX );
 
-        for( Mesh m : objects.values() )
-            for( Triangle p : m.getPolygons() ){
-                // define bounds for drawing the polygon and
-                // make sure we don't try to draw outside the window
-                int     pMinY = Math.max( p.getMinY(), minY ),
-                        pMinX = Math.max( p.getMinX(), minX ),
-                        pMaxY = Math.min( p.getMaxY(), maxY ),
-                        pMaxX = Math.min( p.getMaxX(), maxX );
+            for (int y = pMinY; y <= pMaxY; y++)
+                for (int x = pMinX; x <= pMaxX; x++){
 
-                for (int y = pMinY; y <= pMaxY; y++)
-                    for (int x = pMinX; x <= pMaxX; x++){
-
-                        int normalX = x - minX, normalY = y - minY;
-                        double z = p.depthAt(x,y);
-                        if( z > zBuffer[ normalX ][ normalY ] ){
-                            canvas.setRGB( normalX, normalY,
-                                    getShade( p.color, p.getNormalCos(lightDirection) ).getRGB() );
-                            zBuffer[ normalX ][ normalY ] = z;
-                        }
-
+                    int normalX = x - minX, normalY = y - minY;
+                    double z = p.depthAt(x,y);
+                    if( z > zBuffer[ normalX ][ normalY ] ){
+                        canvas.setRGB( normalX, normalY,
+                                shadeColor( p.color, p.getNormalCos(lightDirection) ).getRGB() );
+                        zBuffer[ normalX ][ normalY ] = z;
                     }
-            }
+
+                }
+        }
+
 
 
         g.drawImage(canvas, minX, minY, null);
+
+
+
 
     }
     private double[][] createZBuffer(BufferedImage image, double drawDistance) {
@@ -132,41 +113,43 @@ public class RenderPanel extends JPanel {
                 zBuffer[x][y] = drawDistance;
         return zBuffer;
     }
-    public static Color getShade(Color color, double shade) {
-//        double minShade = 0;
-        if (shade < minShade){
+
+    public static Color shadeColor(Color color, double shade) {
+        if (shade < minShade)
             shade = minShade;
-        }
 
-        int     red   = (int) ( color.getRed()   * shade ),
-                green = (int) ( color.getGreen() * shade ),
-                blue  = (int) ( color.getBlue()  * shade );
-        return new Color( red, green, blue );
+        float[] hsb = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);
+        hsb[2] = (float)(Math.max( 0, hsb[2] * shade ));
+
+        return new Color(Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]));
     }
 
-
-    public String[] getObjectNames(){
-        return objects.keySet().toArray(new String[0]);
+    public static double getBrightness(Color color){
+        float[] hsb = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);
+        return hsb[2];
     }
-    public void addObject(String type, String name, boolean isSphere, double radius, int subdivisions, double size){
-        if (size < 1 || name.isEmpty())
-            return;
 
-        Mesh mesh = switch (type){
+    public void changeObject(String objectType, double size, boolean isSphere, int subdivisions ){
+        if( size < 1 )
+            throw new IllegalArgumentException("size must be > 0");
+        if( subdivisions < 0 )
+            throw new IllegalArgumentException("subdivisions must be >= 0");
+
+        object = switch (objectType){
             case TETRAHEDRON -> Mesh.tetrahedron(size);
             case CUBE -> Mesh.cube(size);
             default -> throw new IllegalArgumentException("Invalid object type");
         };
 
-        if( isSphere && radius > 0 )
-            mesh.subdivide(subdivisions).inflate(radius);
+        if( isSphere )
+            object.subdivide(subdivisions).inflate(size);
 
-        objects.put(name, mesh);
+        object.rotate(rotationX, rotationY);
         repaint();
-    }
-    public void removeObject(String name){
-        objects.remove(name);
-        repaint();
+
     }
 
+    public int getPolygonCount(){
+        return object.getPolygons().size();
+    }
 }

@@ -9,6 +9,7 @@ public class Mesh {
     public List<Triangle> polygons;
     // distance from the origin along each axis
     private double dx, dy, dz;
+    public int subdivisions;
 
     //Available Object Types
     public static final String
@@ -25,29 +26,30 @@ public class Mesh {
 
     public static Mesh tetrahedron(double size){
         // size = 1/2 edge lengths of a cube the vertices of which the tetrahedron shares
+        double size2 = size / 2;
         return new Mesh(
                 Triangle.build(
-                        -size, -size, size,
-                        size, size, size,
-                        -size, size, -size,
+                        -size2, -size2, size2,
+                        size2, size2, size2,
+                        -size2, size2, -size2,
                         Color.ORANGE
                 ),
                 Triangle.build(
-                        size, size, size,
-                        -size, -size, size,
-                        size, -size, -size,
+                        size2, size2, size2,
+                        -size2, -size2, size2,
+                        size2, -size2, -size2,
                         Color.RED
                 ),
                 Triangle.build(
-                        size, -size, -size,
-                        -size, size, -size,
-                        size, size, size,
+                        size2, -size2, -size2,
+                        -size2, size2, -size2,
+                        size2, size2, size2,
                         Color.GREEN
                 ),
                 Triangle.build(
-                        -size, size, -size,
-                        size, -size, -size,
-                        -size, -size, size,
+                        -size2, size2, -size2,
+                        size2, -size2, -size2,
+                        -size2, -size2, size2,
                         Color.BLUE
                 )
         );
@@ -166,15 +168,12 @@ public class Mesh {
 
         Matrix3D rotationMatrixX = createRotationMatrixX( -radiansX );
         Matrix3D rotationMatrixY = createRotationMatrixY(  radiansY );
+        Matrix3D rm = rotationMatrixX.multiply(rotationMatrixY);
 
         moveToOrigin();
-
-        for( Triangle t : polygons ){
-            t.transform( rotationMatrixX );
-            t.transform( rotationMatrixY );
-        }
-
+        polygons.forEach( t-> t.transform( rm ) );
         moveBackToRealPosition();
+
     }
     public void translate(double dx, double dy, double dz){
         this.dx += dx;
@@ -192,6 +191,7 @@ public class Mesh {
     }
 
     public Mesh subdivide(){
+        subdivisions++;
         List<Triangle> newPolygons = new ArrayList<>(polygons.size() * 4 );
         for( Triangle p : polygons )
             newPolygons.addAll(Arrays.asList( p.subdivide() ));
@@ -200,7 +200,7 @@ public class Mesh {
     }
 
     public Mesh subdivide(int iterations){
-        if (iterations < 1)
+        if (iterations < 0)
             throw new IllegalArgumentException();
 
         for(int i = 0; i < iterations; i++)
@@ -217,18 +217,15 @@ public class Mesh {
         moveBackToRealPosition();
         return this;
     }
-
-    public Mesh formSphere(double radius, int subdivisions){
-        subdivide(subdivisions);
-        inflate(radius);
-        return this;
-    }
-
     private void moveToOrigin(){
+        if(dx == 0 && dy == 0 && dz == 0)
+            return;
         polygons.forEach(t -> t.translate(-dx, -dy, -dz) );
     }
 
     private void moveBackToRealPosition(){
+        if(dx == 0 && dy == 0 && dz == 0)
+            return;
         polygons.forEach(t -> t.translate(dx, dy, dz) );
     }
 }

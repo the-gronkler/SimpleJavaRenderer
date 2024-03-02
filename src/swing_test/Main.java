@@ -5,7 +5,7 @@ import java.awt.*;
 
 public class Main extends JFrame{
     public static void main(String[] args){
-        SwingUtilities.invokeLater(Main::new);
+        SwingUtilities.invokeLater(MainWindow::new);
     }
     public Main(){
         Container pane = this.getContentPane();

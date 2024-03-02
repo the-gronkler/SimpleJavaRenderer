@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="ArtifactsWorkspaceSettings">
+    <artifacts-to-build>
+      <artifact name="SimpleRenderer:jar" />
+    </artifacts-to-build>
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="ca8b2c77-09a3-4c76-9d6b-52c42d19efc6" name="Changes" comment="Added proper directional shading with adjustable light source vector">
+    <list default="true" id="ca8b2c77-09a3-4c76-9d6b-52c42d19efc6" name="Changes" comment="Added proper directional shading with adjustable light source vector and cleaned up code">
+      <change afterPath="$PROJECT_DIR$/src/swing_test/MainWindow.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/swing_test/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/swing_test/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/swing_test/MainWindow.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/swing_test/Mesh.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/swing_test/Mesh.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/swing_test/RenderPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/swing_test/RenderPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/swing_test/Triangle.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/swing_test/Triangle.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -19,6 +24,9 @@
         <option value="Class" />
       </list>
     </option>
+  </component>
+  <component name="Git.Merge.Settings">
+    <option name="BRANCH" value="ui" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
@@ -47,7 +55,10 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
-    "nodejs_package_manager_path": "npm"
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Artifacts",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2"
   }
 }]]></component>
   <component name="RunManager">
@@ -81,6 +92,7 @@
       <workItem from="1708619440819" duration="2165000" />
       <workItem from="1708684055280" duration="7512000" />
       <workItem from="1708941306177" duration="21549000" />
+      <workItem from="1709130357126" duration="17848000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <created>1708619711598</created>
