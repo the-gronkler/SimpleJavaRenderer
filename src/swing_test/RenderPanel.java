@@ -16,9 +16,8 @@ public class RenderPanel extends JPanel {
     public static final Color
             backgroundColor = new Color(32, 32, 32);
 
-    public static final double minShade = getBrightness(backgroundColor);
-
-
+    public static final double
+            minShade = getBrightness(backgroundColor);
 
     public Mesh object;
     private double rotationX, rotationY;
@@ -98,13 +97,7 @@ public class RenderPanel extends JPanel {
                 }
         }
 
-
-
         g.drawImage(canvas, minX, minY, null);
-
-
-
-
     }
     private double[][] createZBuffer(BufferedImage image, double drawDistance) {
         double[][] zBuffer = new double[image.getWidth()][image.getHeight()];
@@ -146,7 +139,6 @@ public class RenderPanel extends JPanel {
 
         object.rotate(rotationX, rotationY);
         repaint();
-
     }
 
     public int getPolygonCount(){

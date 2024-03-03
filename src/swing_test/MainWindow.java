@@ -1,5 +1,7 @@
 package swing_test;
 
+import com.formdev.flatlaf.FlatDarculaLaf;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -19,11 +21,13 @@ public class MainWindow extends JFrame {
 
     JComboBox<String> objectType;
     JSpinner sizeSpinner;
-    JCheckBox isSphere;
+    JRadioButton isSphere;
     JSpinner subdivisionSpinner;
     JLabel polygonCount;
 
     public MainWindow(){
+        FlatDarculaLaf.setup();
+
         Container pane = this.getContentPane();
         pane.setLayout(new BorderLayout());
 
@@ -43,7 +47,7 @@ public class MainWindow extends JFrame {
                 defaultSize, 0, Double.MAX_VALUE, 10) );
         sizeSpinner.setPreferredSize(new Dimension(80, 20));
 
-        isSphere = new JCheckBox();
+        isSphere = new JRadioButton();
         isSphere.setSelected(defaultIsSphere);
 
         subdivisionSpinner = new JSpinner( new SpinnerNumberModel(
@@ -73,25 +77,25 @@ public class MainWindow extends JFrame {
         JPanel controlPanel = new JPanel(new GridLayout(5, 2));
 
         controlPanel.add(new Label("Object Type: "));
-        controlPanel.add(objectType);
+        controlPanel.add(createSpacingPanel(objectType));
 
         controlPanel.add(new Label("Size: "));
-        controlPanel.add(sizeSpinner);
+        controlPanel.add(createSpacingPanel(sizeSpinner));
 
         controlPanel.add(new Label("isSphere: "));
-        controlPanel.add(isSphere);
+        controlPanel.add(createSpacingPanel(isSphere));
 
         controlPanel.add(new Label("Subdivisions: "));
-        controlPanel.add(subdivisionSpinner);
+        controlPanel.add(createSpacingPanel(subdivisionSpinner));
 
         controlPanel.add(new Label("Polygons: "));
-        controlPanel.add(polygonCount);
+        controlPanel.add(createSpacingPanel(polygonCount));
 
 
         JPanel menuContainer = new JPanel();
 
         menuContainer.add(controlPanel);
-        menuContainer.setPreferredSize(new Dimension(215, 130));
+        menuContainer.setPreferredSize(new Dimension(220, 130));
         pane.add(menuContainer, BorderLayout.EAST);
 
         pane.add(renderPanel);
@@ -99,10 +103,15 @@ public class MainWindow extends JFrame {
         setSize(1200, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
-
-
-
     }
+
+    private JPanel createSpacingPanel(Component component) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
+        panel.add(component, BorderLayout.CENTER);
+        return panel;
+    }
+
 
 
 

@@ -6,12 +6,10 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ca8b2c77-09a3-4c76-9d6b-52c42d19efc6" name="Changes" comment="Added proper directional shading with adjustable light source vector and cleaned up code">
-      <change afterPath="$PROJECT_DIR$/src/swing_test/MainWindow.java" afterDir="false" />
+    <list default="true" id="ca8b2c77-09a3-4c76-9d6b-52c42d19efc6" name="Changes" comment="Added ui, changed the way color shades are calculated, optimised rotation for better performance">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/swing_test/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/swing_test/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/swing_test/Mesh.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/swing_test/Mesh.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/swing_test/RenderPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/swing_test/RenderPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SimpleRenderer.iml" beforeDir="false" afterPath="$PROJECT_DIR$/SimpleRenderer.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/swing_test/MainWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/swing_test/MainWindow.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,10 +51,10 @@
     "ASKED_ADD_EXTERNAL_FILES": "true",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "C:/ProgProjects/SimpleRenderer/lib/flatlaf-3.4.jar",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Artifacts",
+    "project.structure.last.edited": "Libraries",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2"
   }
@@ -92,7 +90,7 @@
       <workItem from="1708619440819" duration="2165000" />
       <workItem from="1708684055280" duration="7512000" />
       <workItem from="1708941306177" duration="21549000" />
-      <workItem from="1709130357126" duration="17848000" />
+      <workItem from="1709130357126" duration="20364000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <created>1708619711598</created>
@@ -122,7 +120,14 @@
       <option name="project" value="LOCAL" />
       <updated>1709057531095</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Added ui, changed the way color shades are calculated, optimised rotation for better performance">
+      <created>1709405380785</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1709405380785</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -145,6 +150,7 @@
     <MESSAGE value="Added mesh subdivision, sphere generation and simple shading" />
     <MESSAGE value="Encapsulated renderPanel in separate class. began UI creation in MainWindow class." />
     <MESSAGE value="Added proper directional shading with adjustable light source vector" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added proper directional shading with adjustable light source vector" />
+    <MESSAGE value="Added ui, changed the way color shades are calculated, optimised rotation for better performance" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added ui, changed the way color shades are calculated, optimised rotation for better performance" />
   </component>
 </project>
